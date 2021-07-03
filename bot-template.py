@@ -6,7 +6,7 @@
 #   but probably useful for other stuff too :)
 #
 #   Made by Fireblend (https://www.fireblend.com)
-#
+#   This version is edited by knasiotis (https://github.com/knasiotis/)
 ####################################################
 
 from __future__ import print_function
@@ -24,25 +24,27 @@ import random
 ################################
 
 # Paste spreadsheet ID here
-SPREADSHEET_ID = '1vq_HP94RIWGL5zWIIVyGMAv1U6nOmkPPpyg-7mds-I0'
-# The id of the channel
-CHANNEL_ID = '829011607513989170'
-# Paste range here (can be sheet name)
-RANGE = 'A:D'
+SPREADSHEET_ID = 'SPREASHEET_ID'
+# The ID of the channel
+CHANNEL_ID = 'CHANNEL_ID'
+# Paste range here (can be the sheet's name)
+RANGE = 'A:D' #example
+#Sheet ID - Some requests require a different id
+SHEET_ID= 'ID'
 # Discord Token
-DISCORD_TOKEN = 'ODI4Njc5Nzc1NjMwNjU1NTA4.YGtGLg.lQ8xCwBlokwiUaJ9EzBJ8ER_kSc'
+DISCORD_TOKEN = 'TOKEN'
 # The first response row on the sheet
 STARTING_ROW = 2
-# Update time (5 minutes default)
+# Update time (1 minute default)
 WAIT_TIME = 60*1
 # User roles that can interact with this bot:
 # Use all-lowercase regardless of role capitalization
 # Leave empty if any
-ROLES = ['admin', 'mods', 'zucced']
+ROLES = ['admin', 'mods', 'zucced', 'member']
 # Channels where interaction with this bot are allowed:
 # Use all-lowercase regardless of role capitalization
 # Leave empty if any
-CHANNELS = ['anomologita']
+CHANNELS = ['channelname']
 
 #########################################################
 
@@ -61,6 +63,12 @@ RANDOM_CHANNELS = []
 def format_row(row,hashtag):
     date = row[0]
     text = row[1]
+
+    #Sheets sometimes bold new messages and causes trouble with later formatting, we're removing them
+    length = len(text)
+    if text[1]=='*':
+        text=text[1:length-1]
+    
     if len(row)==3:
         if len(row[1])+len(row[2])>2000:
             return ('>>> ```diff\n- Η καταχώρηση έχει παραπάνω χαρακτήρες από το μέγιστο όριο του Discord και θα παραλειφθεί\n```')
@@ -175,7 +183,8 @@ def sortData(order,service):
 
 # Start the client
 client = discord.Client()
-
+intents = discord.Intents.all()
+intents.members = True
 # Controls update loop
 stop = True
 task = None
@@ -371,50 +380,53 @@ async def on_message(message):
 
 @client.event
 async def on_ready():
+    global task
+    global stop
     print('Logged in as %s' % client.user.name)
     print('Invite to your server: https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot' % client.user.id)
     print('------')
+
+    #LOOP FUNCTION -- will place it under an if statement later
+    # Loop start logic
+    stop = False
+
+    # Determine the row to start from
+    startFrom = STARTING_ROW
+    #Check if we have a row number cache'd from a previous run and use that.
+    if os.path.exists('last_row.pickle'):
+        with open('last_row.pickle', 'rb') as last_row_p:
+            startFrom = pickle.load(last_row_p)
+    # Startup message
+    mins = int(WAIT_TIME/60)
+    await asyncio.sleep(3)
+    print("Started")
+    while not stop:
+        # Retrieve last row number from cache:
+        if os.path.exists('last_row.pickle'):
+            with open('last_row.pickle', 'rb') as last_row_p:
+                startFrom = pickle.load(last_row_p)
+
+        # Build the message using the spreadsheets API
+        posts = makePost(startFrom)
+
+        # If non-empty, post the message
+        if(posts != None and len(posts) > 0):
+            for msg in posts:
+                channel = client.get_channel(int(CHANNEL_ID))
+                await channel.send(msg)
+                
+
+        # Sleep until it's time for the next update
+        coro = asyncio.sleep(WAIT_TIME)
+        task = asyncio.ensure_future(coro)
+
+        # Try block in case the update loop is stopped by the user
+        try:
+            await task
+        except asyncio.CancelledError:
+            print("Stopped")
+    #SHITTY IMPLEMENTATION BUT IT WORKS FOR ME
     
 
 # Run the client
 client.run(DISCORD_TOKEN)
-
-@client.event
-async def on_ready():
-        # Loop start logic
-
-        stop = False
-
-        # Determine the row to start from
-        startFrom = STARTING_ROW
-        #Check if we have a row number cache'd from a previous run and use that.
-        if os.path.exists('last_row.pickle'):
-            with open('last_row.pickle', 'rb') as last_row_p:
-                startFrom = pickle.load(last_row_p)
-        # Startup message
-        mins = int(WAIT_TIME/60)
-        await asyncio.sleep(3)
-        print("Started")
-        while not stop:
-            # Retrieve last row number from cache:
-            if os.path.exists('last_row.pickle'):
-                with open('last_row.pickle', 'rb') as last_row_p:
-                    startFrom = pickle.load(last_row_p)
-
-            # Build the message using the spreadsheets API
-            posts = makePost(startFrom)
-
-            # If non-empty, post the message
-            if(posts != None and len(posts) > 0):
-                for msg in posts:
-                    await client.channels.cache.get(CHANNEL_ID).send('Hello here!')
-
-            # Sleep until it's time for the next update
-            coro = asyncio.sleep(WAIT_TIME)
-            task = asyncio.ensure_future(coro)
-
-            # Try block in case the update loop is stopped by the user
-            try:
-                await task
-            except asyncio.CancelledError:
-                print("Stopped")
