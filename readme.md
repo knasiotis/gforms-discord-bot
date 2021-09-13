@@ -1,7 +1,7 @@
 # Personal changes for specific usage
 My fork includes the following differences/improvements
 
-Bot does not require !start to begin (so for example on windows I can set it to start on boot via the scheduler)
+Bot does not require !start to begin (it is possible start the script on system boot)
 
 - Bot now sorts the form so that it definitely posts the latest messages (The bot could be fooled by someone changing the sort order manually)
 - Fixed some exceptions and updated dependencies
