@@ -7,7 +7,7 @@ Bot does not require !start to begin (so for example on windows I can set it to 
 - Fixed some exceptions and updated dependencies
 
 
-# gforms-discord-bot
+## gforms-discord-bot
 
 This is a simple Discord bot intended to monitor and report on incoming responses from Google Forms through its Google Sheets integration. It regularly checks for new rows in the responses spreadsheet, and posts them on Discord. It's well commented and minimalistic, so feel free to adapt it to your own needs!
 
@@ -20,7 +20,7 @@ This is a simple Discord bot intended to monitor and report on incoming response
 
 <img src="https://i.imgur.com/CfbnBt9.png"/>
 
-# Deploying this bot:
+## Deploying this bot:
 
 **Requirements**: Make sure to have both Python3 and pip3 installed on your computer/wherever you're running this bot from, as well as git.
 I recommend using a Linux VM with Ubuntu if using Windows. If you're using Ubuntu and starting from scratch, execute:
@@ -29,7 +29,7 @@ I recommend using a Linux VM with Ubuntu if using Windows. If you're using Ubunt
 $ sudo apt-get install python3 python3-pip git
 ~~~
 
-## Clone this repository and enter it using a command-line
+### Clone this repository and enter it using a command-line
 
 Execute the following command to clone out this repository:
 
@@ -38,7 +38,7 @@ $ git clone https://github.com/Fireblend/gforms-discord-bot.git
 $ cd gforms-discord-bot
 ~~~
 
-## Install required Python Packages and run the app
+### Install required Python Packages and run the app
 
 It is recommended you use a virtual environment, but it is not required. Virtual Environments are independent groups of Python libraries, one for each project. Packages installed for one project will not affect other projects or the operating system’s packages. If you want to use a Virtual Environment, install the python3-venv package and activate the environment. If not, skip the following commands:
 
@@ -76,7 +76,7 @@ To run the bot, just execute the script from the command line:
 $ python3 app.py
 ~~~
 
-## Invite to a Discord server and use:
+### Invite to a Discord server and use:
 
 Go to the application dashboard on Discord, and copy the application's **Client ID**, then insert it into this URL:
 https://discordapp.com/oauth2/authorize?client_id=INSERT_CLIENT_ID_HERE&scope=bot
